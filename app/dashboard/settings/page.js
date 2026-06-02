@@ -19,7 +19,11 @@ export default async function SettingsPage() {
       {/* API Key */}
       <div className="border border-[#1E2424] bg-[#111414] p-6 mb-4">
         <div className="text-[10px] text-[#6B7070] uppercase tracking-wider mb-3">api key</div>
-        <code className="text-[#FA3C14] text-xs break-all">{profile?.api_key}</code>
+        <code className="text-[#FA3C14] text-xs break-all">
+          {profile?.api_key
+            ? profile.api_key.slice(0, 7) + '•'.repeat(Math.max(0, profile.api_key.length - 15)) + profile.api_key.slice(-8)
+            : '—'}
+        </code>
         <p className="text-[#6B7070] text-[11px] mt-3">
           use this in your SDK config to send run data to burnmap.
         </p>
@@ -28,7 +32,7 @@ export default async function SettingsPage() {
             {'import burnmap'}
           </code>
           <code className="text-[#9AA0A0] text-xs block mt-1">
-            {'burnmap.configure(api_key="' + (profile?.api_key || 'bm_live_...') + '")'}
+            {'burnmap.configure(api_key="bm_live_...")  # copy from above'}
           </code>
         </div>
       </div>

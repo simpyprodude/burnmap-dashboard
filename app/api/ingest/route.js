@@ -28,13 +28,35 @@ export async function POST(request) {
     const body = await request.json()
     const { job_name, budget, total_cost, call_count, duration_seconds, stopped_early, stop_reason, calls, project_id, started_at, ended_at } = body
 
+    if (!job_name || typeof job_name !== 'string' || job_name.trim().length === 0) {
+      return NextResponse.json({ error: 'job_name is required' }, { status: 400 })
+    }
+
+    // Validate project_id belongs to this user (prevent IDOR)
+    let resolvedProjectId = null
+    if (project_id) {
+      const { data: proj } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('id', project_id)
+        .eq('user_id', profile.id)
+        .single()
+      if (!proj) {
+        return NextResponse.json({ error: 'Invalid project_id' }, { status: 403 })
+      }
+      resolvedProjectId = proj.id
+    }
+
+    // Limit calls array to prevent oversized payloads
+    const safeCalls = Array.isArray(calls) ? calls.slice(0, 10000) : []
+
     // Insert the run
     const { data: run, error: runError } = await supabase
       .from('runs')
       .insert({
         user_id: profile.id,
-        project_id: project_id || null,
-        job_name,
+        project_id: resolvedProjectId,
+        job_name: job_name.trim(),
         budget,
         total_cost,
         call_count,
@@ -53,8 +75,8 @@ export async function POST(request) {
     }
 
     // Insert individual calls
-    if (calls && calls.length > 0) {
-      const callRows = calls.map(c => ({
+    if (safeCalls.length > 0) {
+      const callRows = safeCalls.map(c => ({
         run_id: run.id,
         call_number: c.call_number,
         model: c.model,
