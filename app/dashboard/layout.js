@@ -32,6 +32,11 @@ export default async function DashboardLayout({ children }) {
       <Sidebar profile={profile} callCount={callCount} />
       <main style={{ overflowY: 'auto', padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {children}
+        <footer style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '8px', display: 'flex', gap: '16px' }}>
+          <a href="/legal/terms" style={{ fontSize: '10px', color: 'var(--muted2)' }}>Terms</a>
+          <a href="/legal/privacy" style={{ fontSize: '10px', color: 'var(--muted2)' }}>Privacy</a>
+          <a href="mailto:remon@burnmap.dev" style={{ fontSize: '10px', color: 'var(--muted2)' }}>remon@burnmap.dev</a>
+        </footer>
       </main>
     </div>
   )

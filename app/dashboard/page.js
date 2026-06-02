@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase-server'
 import Link from 'next/link'
 import SpendChart from '@/components/SpendChart'
+import OnboardingCard from '@/components/OnboardingCard'
 
 const MODEL_COLORS = {
   'claude-opus':   '#e8593c',
@@ -86,6 +87,9 @@ export default async function DashboardPage() {
           View all runs →
         </Link>
       </div>
+
+      {/* Onboarding — shown only on first visit */}
+      {totalRuns === 0 && <OnboardingCard />}
 
       {/* Stat cards */}
       <div className="stat-grid">
