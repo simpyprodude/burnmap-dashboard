@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
-export default function Sidebar({ profile }) {
+export default function Sidebar({ profile, callCount = 0 }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -13,51 +13,95 @@ export default function Sidebar({ profile }) {
     router.push('/login')
   }
 
-  const links = [
-    { href: '/dashboard', label: 'runs' },
-    { href: '/dashboard/projects', label: 'projects' },
-    { href: '/dashboard/settings', label: 'settings' },
+  const freePct = Math.min(100, Math.round((callCount / 50000) * 100))
+
+  const sections = [
+    {
+      label: 'Overview',
+      items: [
+        { href: '/dashboard', label: 'Dashboard', icon: '▣' },
+        { href: '/dashboard/runs', label: 'Runs', icon: '◈' },
+      ]
+    },
+    {
+      label: 'Manage',
+      items: [
+        { href: '/dashboard/projects', label: 'Projects', icon: '⬡' },
+        { href: '/dashboard/settings', label: 'Settings', icon: '◎' },
+      ]
+    }
   ]
 
   return (
-    <aside className="w-52 border-r border-[#1E2424] flex flex-col min-h-screen bg-[#0D0F0F]">
-      {/* Logo */}
-      <div className="px-6 py-5 border-b border-[#1E2424]">
-        <span className="text-[#FA3C14] font-semibold tracking-wider">burnmap</span>
-      </div>
+    <nav style={{
+      background: 'var(--bg1)',
+      borderRight: '1px solid var(--border)',
+      padding: '20px 0',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '2px',
+      minHeight: '100%',
+    }}>
+      {sections.map((section, si) => (
+        <div key={si} style={{ padding: '0 16px', marginBottom: '8px' }}>
+          <div style={{ fontSize: '10px', color: 'var(--muted2)', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '0 8px', marginBottom: '4px' }}>
+            {section.label}
+          </div>
+          {section.items.map(item => {
+            const active = pathname === item.href
+            return (
+              <Link key={item.href} href={item.href} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '7px 8px',
+                borderRadius: '4px',
+                color: active ? 'var(--text)' : 'var(--muted)',
+                fontSize: '12px',
+                background: active ? 'var(--bg3)' : 'transparent',
+                border: active ? '1px solid var(--border)' : '1px solid transparent',
+                textDecoration: 'none',
+                transition: 'all 0.12s',
+                marginBottom: '2px',
+              }}>
+                <span style={{ fontSize: '14px', opacity: active ? 1 : 0.7 }}>{item.icon}</span>
+                {item.label}
+              </Link>
+            )
+          })}
+        </div>
+      ))}
 
-      {/* Plan badge */}
-      <div className="px-6 py-3 border-b border-[#1E2424]">
-        <span className="text-[10px] text-[#6B7070] uppercase tracking-widest">{profile?.plan || 'free'}</span>
-      </div>
+      <div style={{ height: '1px', background: 'var(--border)', margin: '4px 16px 12px' }} />
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
-        {links.map(link => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`px-3 py-2 text-xs transition-colors ${
-              pathname === link.href
-                ? 'text-[#E8E8E6] bg-[#161A1A]'
-                : 'text-[#6B7070] hover:text-[#9AA0A0]'
-            }`}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+      {/* Plan card */}
+      <div style={{ marginTop: 'auto', padding: '0 16px' }}>
+        <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: '6px', padding: '12px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>Current plan</div>
+          <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: '500', marginBottom: '10px', textTransform: 'capitalize' }}>
+            {profile?.plan || 'free'} tier
+          </div>
+          <div style={{ height: '3px', background: 'var(--border2)', borderRadius: '2px', marginBottom: '6px' }}>
+            <div style={{ height: '3px', background: 'var(--accent)', borderRadius: '2px', width: `${freePct}%` }} />
+          </div>
+          <div style={{ fontSize: '10px', color: 'var(--muted)' }}>
+            {callCount.toLocaleString()} / 50,000 calls
+          </div>
+        </div>
 
-      {/* Footer */}
-      <div className="px-6 py-4 border-t border-[#1E2424]">
-        <p className="text-[#6B7070] text-[11px] truncate mb-2">{profile?.email}</p>
-        <button
-          onClick={signOut}
-          className="text-[11px] text-[#6B7070] hover:text-[#FA3C14] transition-colors"
-        >
-          sign out
+        <button onClick={signOut} style={{
+          marginTop: '12px',
+          fontSize: '11px',
+          color: 'var(--muted2)',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '4px 8px',
+          fontFamily: 'var(--mono)',
+        }}>
+          sign out →
         </button>
       </div>
-    </aside>
+    </nav>
   )
 }

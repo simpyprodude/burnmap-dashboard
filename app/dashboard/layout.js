@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
+import Topbar from '@/components/Topbar'
 
 export default async function DashboardLayout({ children }) {
   const supabase = await createClient()
@@ -13,10 +14,23 @@ export default async function DashboardLayout({ children }) {
     .eq('id', user.id)
     .single()
 
+  const { count } = await supabase
+    .from('runs')
+    .select('call_count', { count: 'exact', head: false })
+    .eq('user_id', user.id)
+
+  const callCount = count || 0
+
   return (
-    <div className="flex min-h-screen">
-      <Sidebar profile={profile} />
-      <main className="flex-1 min-w-0 p-8">
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '220px 1fr',
+      gridTemplateRows: '48px 1fr',
+      minHeight: '100vh',
+    }}>
+      <Topbar profile={profile} />
+      <Sidebar profile={profile} callCount={callCount} />
+      <main style={{ overflowY: 'auto', padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {children}
       </main>
     </div>
