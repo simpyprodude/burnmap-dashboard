@@ -22,60 +22,97 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+      background: 'var(--bg)',
+    }}>
+      <div style={{ width: '100%', maxWidth: '360px' }}>
         {/* Logo */}
-        <div className="mb-10 text-center">
-          <span className="text-[#FA3C14] font-semibold tracking-wider text-lg">burnmap</span>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="14" height="14" rx="3" stroke="var(--accent)" strokeWidth="1.5"/>
+              <path d="M4 11 L8 5 L12 11" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            </svg>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: '15px', fontWeight: '600', color: 'var(--text)', letterSpacing: '-0.01em' }}>
+              burnmap
+            </span>
+          </div>
         </div>
 
-        <div className="border border-[#1E2424] bg-[#111414] p-8">
-          <h1 className="serif text-2xl text-[#E8E8E6] mb-1">sign in</h1>
-          <p className="text-[#6B7070] text-xs mb-8">your real AI bill, before it hits.</p>
+        {/* Card */}
+        <div className="card" style={{ padding: '32px' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ fontFamily: 'var(--serif)', fontSize: '22px', color: 'var(--text)', marginBottom: '4px' }}>
+              Sign in
+            </div>
+            <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
+              Your real AI bill, before it hits.
+            </div>
+          </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
-              <label className="text-[#9AA0A0] text-xs block mb-2">email</label>
+              <label style={{ display: 'block', fontSize: '10.5px', color: 'var(--muted)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="w-full bg-[#0D0F0F] border border-[#1E2424] text-[#E8E8E6] px-3 py-2.5 text-sm outline-none focus:border-[#FA3C14] transition-colors"
+                className="input"
                 placeholder="you@example.com"
+                autoComplete="email"
               />
             </div>
+
             <div>
-              <label className="text-[#9AA0A0] text-xs block mb-2">password</label>
+              <label style={{ display: 'block', fontSize: '10.5px', color: 'var(--muted)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                className="w-full bg-[#0D0F0F] border border-[#1E2424] text-[#E8E8E6] px-3 py-2.5 text-sm outline-none focus:border-[#FA3C14] transition-colors"
+                className="input"
                 placeholder="••••••••"
+                autoComplete="current-password"
               />
             </div>
 
             {error && (
-              <p className="text-[#F87171] text-xs">{error}</p>
+              <div style={{
+                fontSize: '11px',
+                color: 'var(--accent)',
+                background: 'rgba(232,89,60,0.08)',
+                border: '1px solid rgba(232,89,60,0.2)',
+                borderRadius: 'var(--radius)',
+                padding: '8px 12px',
+              }}>
+                {error}
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="bg-[#FA3C14] text-white font-semibold py-2.5 px-4 text-sm hover:bg-[#DF2C08] transition-colors disabled:opacity-60 mt-2"
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', padding: '10px', marginTop: '4px' }}
             >
-              {loading ? 'signing in...' : 'sign in'}
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
 
-          <p className="text-[#6B7070] text-xs mt-6 text-center">
-            no account?{' '}
-            <Link href="/signup" className="text-[#FA3C14] hover:underline">
-              sign up
-            </Link>
-          </p>
+          <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '11px', color: 'var(--muted)' }}>
+            No account?{' '}
+            <Link href="/signup" className="link-accent">Create one →</Link>
+          </div>
         </div>
       </div>
     </div>

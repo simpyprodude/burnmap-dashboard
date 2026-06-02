@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }) {
 
   const { count } = await supabase
     .from('runs')
-    .select('call_count', { count: 'exact', head: false })
+    .select('*', { count: 'exact', head: true })
     .eq('user_id', user.id)
 
   const callCount = count || 0

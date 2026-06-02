@@ -1,71 +1,102 @@
 import { createClient } from '@/lib/supabase-server'
+import { redirect } from 'next/navigation'
+import ApiKeyDisplay from '@/components/ApiKeyDisplay'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('plan')
     .eq('id', user.id)
     .single()
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="serif text-3xl text-[#E8E8E6] mb-1">settings</h1>
-        <p className="text-[#6B7070] text-xs">your account and API key.</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '640px' }}>
+      {/* Header */}
+      <div>
+        <div className="page-title">Settings</div>
+        <div className="page-sub">API key, plan, and account details.</div>
       </div>
 
       {/* API Key */}
-      <div className="border border-[#1E2424] bg-[#111414] p-6 mb-4">
-        <div className="text-[10px] text-[#6B7070] uppercase tracking-wider mb-3">api key</div>
-        <code className="text-[#FA3C14] text-xs break-all">
-          {profile?.api_key
-            ? profile.api_key.slice(0, 7) + '•'.repeat(Math.max(0, profile.api_key.length - 15)) + profile.api_key.slice(-8)
-            : '—'}
-        </code>
-        <p className="text-[#6B7070] text-[11px] mt-3">
-          use this in your SDK config to send run data to burnmap.
-        </p>
-        <div className="mt-4 bg-[#0D0F0F] border border-[#1E2424] p-4">
-          <code className="text-[#9AA0A0] text-xs block">
-            {'import burnmap'}
-          </code>
-          <code className="text-[#9AA0A0] text-xs block mt-1">
-            {'burnmap.configure(api_key="bm_live_...")  # copy from above'}
-          </code>
+      <div className="settings-section">
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
+          <div className="section-label" style={{ marginBottom: '4px' }}>API key</div>
+          <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
+            Used to authenticate SDK calls from your agents.
+          </div>
+        </div>
+
+        <div style={{ padding: '16px 20px' }}>
+          <ApiKeyDisplay />
+
+          <div className="code-block" style={{ marginTop: '14px' }}>
+            <div style={{ color: 'var(--muted2)', marginBottom: '4px' }}>import burnmap</div>
+            <div>
+              <span style={{ color: 'var(--muted)' }}>burnmap.configure(</span>
+              <span style={{ color: 'var(--accent)' }}>api_key</span>
+              <span style={{ color: 'var(--muted)' }}>="</span>
+              <span style={{ color: 'var(--text2)' }}>bm_live_…</span>
+              <span style={{ color: 'var(--muted)' }}>")</span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Plan */}
-      <div className="border border-[#1E2424] bg-[#111414] p-6 mb-4">
-        <div className="text-[10px] text-[#6B7070] uppercase tracking-wider mb-3">plan</div>
-        <div className="flex items-center justify-between">
-          <span className="text-[#E8E8E6] text-sm capitalize">{profile?.plan || 'free'}</span>
-          {profile?.plan === 'free' && (
+      <div className="settings-section">
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
+          <div className="section-label">Plan</div>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <div className="settings-row-label" style={{ textTransform: 'capitalize' }}>
+              {profile?.plan || 'free'}
+            </div>
+            <div className="settings-row-sub">
+              {profile?.plan === 'free' && '50k calls/month · 30-day retention · 1 project'}
+              {profile?.plan === 'indie' && 'Unlimited calls · 1-year retention · 5 projects · alerts'}
+              {profile?.plan === 'team' && 'Unlimited calls · 1-year retention · unlimited projects · 3 seats'}
+            </div>
+          </div>
+          {(!profile?.plan || profile.plan === 'free') && (
             <a
               href="https://burnmap.dev/#pricing"
               target="_blank"
-              className="text-xs text-[#FA3C14] hover:underline"
+              rel="noopener noreferrer"
+              className="btn btn-ghost"
+              style={{ fontSize: '11px', textDecoration: 'none' }}
             >
-              upgrade →
+              Upgrade →
             </a>
           )}
-        </div>
-        <div className="mt-3 text-[#6B7070] text-xs">
-          {profile?.plan === 'free' && '50k calls/month · 30-day retention · 1 project'}
-          {profile?.plan === 'indie' && 'unlimited calls · 1-year retention · 5 projects · alerts'}
-          {profile?.plan === 'team' && 'unlimited calls · 1-year retention · unlimited projects · 3 seats'}
         </div>
       </div>
 
       {/* Account */}
-      <div className="border border-[#1E2424] bg-[#111414] p-6">
-        <div className="text-[10px] text-[#6B7070] uppercase tracking-wider mb-3">account</div>
-        <p className="text-[#E8E8E6] text-sm">{user?.email}</p>
-        <p className="text-[#6B7070] text-xs mt-1">
-          member since {new Date(user?.created_at).toLocaleDateString()}
-        </p>
+      <div className="settings-section">
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
+          <div className="section-label">Account</div>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <div className="settings-row-label">{user?.email}</div>
+            <div className="settings-row-sub">
+              Member since {new Date(user?.created_at).toLocaleDateString([], { month: 'long', year: 'numeric' })}
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <div className="settings-row-label">User ID</div>
+            <div className="settings-row-sub" style={{ fontFamily: 'var(--mono)' }}>{user?.id}</div>
+          </div>
+        </div>
       </div>
     </div>
   )
